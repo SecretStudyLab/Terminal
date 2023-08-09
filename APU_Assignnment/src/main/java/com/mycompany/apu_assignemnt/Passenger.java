@@ -71,6 +71,7 @@ public class Passenger extends Thread {
 //            System.out.println("Thread-Passenger-" + Thread.currentThread().getId() + ": Entered Waiting Area " + id + ".");
             for (WaitingArea area : waitingAreas) {
                 if (area.enter()) {
+                    guard.exit();
                     System.out.println("Thread-Passenger-" + id + ": Waiting in " + area.getId());
                     chosenArea = area;
                     break;
@@ -97,7 +98,7 @@ public class Passenger extends Thread {
     }
 
     private void exitTerminal() {
-        guard.exit();
+
         waitingAreas.get(desiredWaitingArea).leave();
 
         passengersProcessed.getAndIncrement();
