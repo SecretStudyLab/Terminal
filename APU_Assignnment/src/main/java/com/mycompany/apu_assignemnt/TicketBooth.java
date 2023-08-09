@@ -16,7 +16,7 @@ public class TicketBooth {
         // To keep it simple, we're just returning true (successful purchase).
         queueLength++;
         System.out.println("Thread-Passenger-" + passengerId + ": Buying a ticket from the booth " + id);
-        Thread.sleep((int) (Math.random() * 2 + 3) * 1000); // Random delay between 2-5 seconds
+        Thread.sleep((int) (Math.random() * 1 + 1) * 1000); // Random delay between 2-5 seconds
         System.out.println("Thread-Passenger-" + passengerId + ": Bought a ticket from the booth " + id);
         queueLength--;
 

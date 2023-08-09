@@ -1,6 +1,7 @@
 package com.mycompany.apu_assignemnt;
 
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -8,7 +9,6 @@ import java.util.logging.Logger;
 public class Passenger extends Thread {
 
     private int id;
-    private Guard guard;
     private TicketBooth ticketBooth1;
     private TicketBooth ticketBooth2;
     private TicketMachine ticketMachine;
@@ -17,18 +17,16 @@ public class Passenger extends Thread {
     private List<WaitingArea> waitingAreas;
     private int desiredWaitingArea;
     private AtomicInteger passengersProcessed;
+    private Random random = new Random();
 
-    public Passenger(int id, Guard guard, TicketBooth ticketBooth1, TicketBooth ticketBooth2, TicketMachine ticketMachine, 
-                     Inspector inspector, List<Bus> buses, List<WaitingArea> waitingAreas, 
-                     int desiredWaitingArea, AtomicInteger passengersProcessed) {
+    public Passenger(int id, TicketBooth ticketBooth1, TicketBooth ticketBooth2, TicketMachine ticketMachine,
+            Inspector inspector, List<Bus> buses, List<WaitingArea> waitingAreas,
+            int desiredWaitingArea, AtomicInteger passengersProcessed) {
         this.id = id;
-        this.guard = guard;
         this.ticketBooth1 = ticketBooth1;
         this.ticketBooth2 = ticketBooth2;
         this.ticketMachine = ticketMachine;
         this.inspector = inspector;
-
-        //TODO Pass Inspector to Bus instead
         this.buses = buses;
         this.waitingAreas = waitingAreas;
         this.desiredWaitingArea = desiredWaitingArea;
@@ -38,22 +36,13 @@ public class Passenger extends Thread {
     @Override
     public void run() {
         try {
-            enteringTerminal();
             purchaseTicket();
             waitForBusInArea();
-            inspectTicket();
             boardBus();
             exitTerminal();
         } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+            Logger.getLogger(Passenger.class.getName()).log(Level.SEVERE, "Passenger interrupted.", e);
         }
-
-
-    }
-
-    private void enteringTerminal() throws InterruptedException {
-        guard.entry();
-        System.out.println("Thread-Passenger-" + id + ": Entering the terminal.");
     }
 
     private void purchaseTicket() {
@@ -68,20 +57,24 @@ public class Passenger extends Thread {
     }
 
     private void waitForBusInArea() throws InterruptedException {
-        WaitingArea chosenArea = waitingAreas.get(desiredWaitingArea);
+        // Randomly choose an area instead of always using desiredWaitingArea.
+        int chosenIndex = random.nextInt(waitingAreas.size());
+        WaitingArea chosenArea = waitingAreas.get(chosenIndex);
+
         chosenArea.enter();
-        guard.exit();
+        System.out.println("Thread-Passenger-" + id + ": Entered Waiting Area.");
         System.out.println("Thread-Passenger-" + id + ": Waiting in " + chosenArea.getId());
     }
 
-    private void inspectTicket() {
-        inspector.inspectTicket(id);
-    }
-
     private void boardBus() {
-        Bus chosenBus = buses.get(desiredWaitingArea);
+        // Randomly choose a bus for boarding
+        int chosenIndex = random.nextInt(buses.size());
+        Bus chosenBus = buses.get(chosenIndex);
+
         if (chosenBus.isAvailable()) {
             try {
+                // Move ticket inspection here if required before boarding
+                inspector.inspectTicket(id);
                 chosenBus.boardBus(id);
             } catch (InterruptedException ex) {
                 Logger.getLogger(Passenger.class.getName()).log(Level.SEVERE, null, ex);
@@ -90,11 +83,11 @@ public class Passenger extends Thread {
     }
 
     private void exitTerminal() {
-
         waitingAreas.get(desiredWaitingArea).leave();
+        System.out.println("Thread-Passenger-" + id + ": Left Waiting Area.");
 
         passengersProcessed.getAndIncrement();
-        System.out.println("Total Processed passanger " + passengersProcessed.get());
+        System.out.println("Total Processed passenger " + passengersProcessed.get());
 
         if (passengersProcessed.get() == 80) {
             synchronized (Terminal.monitor) {

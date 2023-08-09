@@ -18,20 +18,10 @@ public class WaitingArea {
     }
 
     public void enter() throws InterruptedException {  // Passenger tries to enter the waiting area.
-         availableSpace.acquire();
-
-//        if (availableSpace.tryAcquire()) {
-//            //TODO Move all sout to passenger classs
-//            System.out.println("Thread-Passenger-" + Thread.currentThread().getId() + ": Entered Waiting Area " + id + ".");
-//            return true;
-//        } else {
-//            System.out.println("Thread-Passenger-" + Thread.currentThread().getId() + ": Waiting Area " + id + " is full.");
-//            return false;
-//        }
+        availableSpace.acquire();
     }
 
     public void leave() {  // Passenger leaves the waiting area.
         availableSpace.release();
-        System.out.println("Thread-Passenger-" + Thread.currentThread().getId() + ": Left Waiting Area " + id + ".");
     }
 }
