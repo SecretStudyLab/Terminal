@@ -65,21 +65,11 @@ public class Passenger extends Thread {
         }
     }
 
-    private void waitForBusInArea() {
+    private void waitForBusInArea() throws InterruptedException {
         WaitingArea chosenArea = waitingAreas.get(desiredWaitingArea);
-        if (!chosenArea.enter()) {
-//            System.out.println("Thread-Passenger-" + Thread.currentThread().getId() + ": Entered Waiting Area " + id + ".");
-            for (WaitingArea area : waitingAreas) {
-                if (area.enter()) {
-                    guard.exit();
-                    System.out.println("Thread-Passenger-" + id + ": Waiting in " + area.getId());
-                    chosenArea = area;
-                    break;
-                }
-            }
-        } else {
-            System.out.println("Thread-Passenger-" + id + ": Waiting in " + chosenArea.getId());
-        }
+        chosenArea.enter();
+        guard.exit();
+        System.out.println("Thread-Passenger-" + id + ": Waiting in " + chosenArea.getId());
     }
 
     private void inspectTicket() {
