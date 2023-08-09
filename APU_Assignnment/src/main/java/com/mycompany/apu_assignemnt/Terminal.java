@@ -55,17 +55,19 @@ public class Terminal {
             final int passengerId = i;
             final int desiredWaitingAreaIndex = (int) (Math.random() * waitingAreas.size());
 
-            // Schedule the passenger thread with random delay
-            service.schedule(() -> {
-                // We will pass the whole lists of buses and waiting areas to the Passenger.
-                // Inside the Passenger class, the passenger will choose a specific bus and a waiting area to interact with.
-                Passenger p = new Passenger(passengerId, guard, ticketBooth1, ticketBooth2, ticketMachine, inspector, buses, waitingAreas, desiredWaitingAreaIndex, passengersProcessed);
-                p.start();
-            }, (int) (Math.random() * 2 + 3), TimeUnit.SECONDS);
+            // We will pass the whole lists of buses and waiting areas to the Passenger.
+            // Inside the Passenger class, the passenger will choose a specific bus and a waiting area to interact with.
+            Passenger p = new Passenger(passengerId, guard, ticketBooth1, ticketBooth2, ticketMachine, inspector, buses, waitingAreas, desiredWaitingAreaIndex, passengersProcessed);
+            p.start();
+            try {
+                Thread.sleep((int) ((Math.random() * 2 + 3)*1000));
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
-
-        // Shutdown the executor service after launching all passenger threads
-        service.shutdown();
+//
+//        // Shutdown the executor service after launching all passenger threads
+//        service.shutdown();
         // After shutting down the executor:
         synchronized (monitor) {
             while (passengersProcessed.get() < 80) {
