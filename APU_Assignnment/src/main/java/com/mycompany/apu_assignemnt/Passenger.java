@@ -35,23 +35,23 @@ public class Passenger extends Thread {
 
     @Override
     public void run() {
-        if (tryEnteringTerminal()) {
+        try {
+            enteringTerminal();
             purchaseTicket();
             waitForBusInArea();
             inspectTicket();
             boardBus();
             exitTerminal();
-        } else {
-            System.out.println("Thread-Passenger-" + id + ": Terminal full! Waiting outside.");
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
+
+
     }
 
-    private boolean tryEnteringTerminal() {
-        if (guard.allowEntry()) {
-            System.out.println("Thread-Passenger-" + id + ": Entering the terminal.");
-            return true;
-        }
-        return false;
+    private void enteringTerminal() throws InterruptedException {
+        guard.entry();
+        System.out.println("Thread-Passenger-" + id + ": Entering the terminal.");
     }
 
     private void purchaseTicket() {

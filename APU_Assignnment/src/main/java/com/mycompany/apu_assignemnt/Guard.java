@@ -10,8 +10,8 @@ public class Guard {
         terminalSpace = new Semaphore(capacity, true);
     }
 
-    public boolean allowEntry() {
-        return terminalSpace.tryAcquire();
+    public void entry() throws InterruptedException {
+        terminalSpace.acquire();
     }
 
     public void exit() {
