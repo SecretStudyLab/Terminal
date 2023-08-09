@@ -6,6 +6,7 @@ public class TicketBooth {
     private int queueLength; // Represents the number of passengers waiting at this booth
     public static final int MAX_QUEUE_LENGTH = 4;
 
+    //TODO Change to Thread
     public TicketBooth(int id) {
         this.id = id;
     }

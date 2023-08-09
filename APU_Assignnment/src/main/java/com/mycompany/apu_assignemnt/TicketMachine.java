@@ -1,5 +1,6 @@
 package com.mycompany.apu_assignemnt;
 
+//TODO Change to Thread
 public class TicketMachine {
 
     private boolean isWorking = true;
