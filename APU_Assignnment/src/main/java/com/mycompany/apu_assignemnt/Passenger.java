@@ -27,6 +27,8 @@ public class Passenger extends Thread {
         this.ticketBooth2 = ticketBooth2;
         this.ticketMachine = ticketMachine;
         this.inspector = inspector;
+
+        //TODO Pass Inspector to Bus instead
         this.buses = buses;
         this.waitingAreas = waitingAreas;
         this.desiredWaitingArea = desiredWaitingArea;

@@ -12,6 +12,7 @@ public class Bus {
         this.id = id;
     }
 
+    //TODO Change Bus to Thread
     public void boardBus(int passengerId) throws InterruptedException {
         synchronized (busLock) {
             while (!isAvailable() || !atTerminal) {
