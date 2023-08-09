@@ -8,6 +8,9 @@ public class Inspector {
 
     public synchronized void inspectTicket(int passengerId) {
         // Print a message indicating the ticket is being inspected
+
+        //TODO Extends Thread
+        //TODO Actively Consume Passengers in Waiting Area when Bus arrives
         System.out.println("Thread-Passenger-" + passengerId + ": Ticket is being inspected...");
         // Sleep to simulate the time taken for ticket inspection, with random duration between 500 to 2000 milliseconds
         try {
