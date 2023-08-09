@@ -68,6 +68,7 @@ public class Passenger extends Thread {
     private void waitForBusInArea() {
         WaitingArea chosenArea = waitingAreas.get(desiredWaitingArea);
         if (!chosenArea.enter()) {
+//            System.out.println("Thread-Passenger-" + Thread.currentThread().getId() + ": Entered Waiting Area " + id + ".");
             for (WaitingArea area : waitingAreas) {
                 if (area.enter()) {
                     System.out.println("Thread-Passenger-" + id + ": Waiting in " + area.getId());

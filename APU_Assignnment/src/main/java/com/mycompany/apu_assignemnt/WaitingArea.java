@@ -18,7 +18,10 @@ public class WaitingArea {
     }
 
     public boolean enter() {  // Passenger tries to enter the waiting area.
+        return availableSpace.tryAcquire();
+
         if (availableSpace.tryAcquire()) {
+            //TODO Move all sout to passenger classs
             System.out.println("Thread-Passenger-" + Thread.currentThread().getId() + ": Entered Waiting Area " + id + ".");
             return true;
         } else {
