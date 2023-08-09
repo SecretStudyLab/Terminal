@@ -17,8 +17,8 @@ public class WaitingArea {
         return id;
     }
 
-    public boolean enter() {  // Passenger tries to enter the waiting area.
-        return availableSpace.tryAcquire();
+    public void enter() throws InterruptedException {  // Passenger tries to enter the waiting area.
+         availableSpace.acquire();
 
 //        if (availableSpace.tryAcquire()) {
 //            //TODO Move all sout to passenger classs
