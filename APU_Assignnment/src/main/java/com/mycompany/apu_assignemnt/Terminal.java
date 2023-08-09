@@ -10,8 +10,8 @@ import java.util.List;
 
 public class Terminal {
 
-    public static final int MAX_CAPACITY = 80;
-    public static final int ALLOW_ENTRY_CAPACITY = 64; // 80% of MAX_CAPACITY
+    public static final int MAX_CAPACITY = 15;
+    public static final int ALLOW_ENTRY_CAPACITY = 12; // 80% of MAX_CAPACITY
 
     public static Semaphore terminalCapacity = new Semaphore(MAX_CAPACITY, true);
     public static AtomicInteger passengersProcessed = new AtomicInteger(0);
