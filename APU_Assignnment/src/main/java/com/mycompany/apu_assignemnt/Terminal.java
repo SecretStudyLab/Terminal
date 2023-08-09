@@ -21,6 +21,18 @@ public class Terminal {
         ScheduledExecutorService service = Executors.newScheduledThreadPool(1);
 
         // Create shared resources
+
+        //TODO FoyerSpace(MAX_CAPACITY)) (15)
+        //Passenger can only acquire when FoyerSpace (12 Space)
+        //Passenger 1 Exited to Waiting Area
+        //Passenger 2 Exited to Waiting Area
+        //Passenger 3 Exited to Waiting Area
+        //Guard allows new passenger to come in to terminal
+        //Declare Atomic Integer x
+        //In Guard exit() function, If availablePermits()==0, x+=1 -> FoyerSpace is still fully acquired cannot be entered
+        //In x==3, Guard release(3) x->0,
+
+
         Guard guard = new Guard(ALLOW_ENTRY_CAPACITY);
         TicketBooth ticketBooth1 = new TicketBooth(1);
         TicketBooth ticketBooth2 = new TicketBooth(2);
