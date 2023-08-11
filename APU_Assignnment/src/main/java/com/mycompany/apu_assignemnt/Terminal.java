@@ -13,7 +13,9 @@ public class Terminal {
     public static final int MAX_CAPACITY = 15;
     public static final int ALLOW_ENTRY_CAPACITY = 12; // 80% of MAX_CAPACITY
 
-    public static Semaphore terminalCapacity = new Semaphore(MAX_CAPACITY, true);
+    public static Semaphore foyerSpace = new Semaphore(MAX_CAPACITY, true);
+    public static AtomicInteger entranceThreshold =new AtomicInteger(0);
+
     public static AtomicInteger passengersProcessed = new AtomicInteger(0);
     final static Object monitor = new Object();
 
@@ -33,35 +35,67 @@ public class Terminal {
         //In x==3, Guard release(3) x->0,
 
 
-        Guard guard = new Guard(ALLOW_ENTRY_CAPACITY);
-        TicketBooth ticketBooth1 = new TicketBooth(1);
-        TicketBooth ticketBooth2 = new TicketBooth(2);
-        TicketMachine ticketMachine = new TicketMachine();
-        Inspector inspector = new Inspector();
+
+        Guard westEntranceGuard = new Guard("West Entrance",foyerSpace, entranceThreshold);
+        Guard eastEntranceGuard = new Guard("East Entrance",foyerSpace, entranceThreshold);
+
+        TicketSeller ticketBooth1 = new TicketSeller(3, 6);
+        TicketSeller ticketBooth2 = new TicketSeller(3,6);
+        TicketSeller ticketMachine = new TicketSeller(1,3);
 
         List<Bus> buses = new ArrayList<>();
-        int numOfBuses = (int) (Math.random() * 4 + 3); // Random generate 3-6 buses
-        for (int i = 0; i < numOfBuses; i++) {
-            buses.add(new Bus(i + 1));
+        for (int i = 0; i < 3; i++) {
+            Bus bus=new Bus(i + 1, passengersProcessed);
+            buses.add(bus);
+            bus.start();
         }
 
         List<WaitingArea> waitingAreas = new ArrayList<>();
         for (int i = 0; i < 3; i++) {
             waitingAreas.add(new WaitingArea(i + 1));
         }
-
+        Inspector inspector = new Inspector(passengersProcessed, buses, waitingAreas);
+        inspector.start();
         // Schedule the ticket machine breakdown simulation
         service.scheduleAtFixedRate(() -> {
-            if (Math.random() < 0.2) { //20% of the down time
-                ticketMachine.setBroken();
-                try {
-                    Thread.sleep((int) (Math.random() * 2 + 5) * 1000); // Random downtime between 2-5 seconds
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+            if (Math.random() < 0.2) { //20% of the down time/to get repair
+                if(ticketMachine.isWorking()){
+                    ticketMachine.setNotWorking();
+                    System.out.println("Ticket Machine: Breakdown!");
+                }else{
+                    ticketMachine.setWorking();
+                    System.out.println("Ticket Machine: Functional again.");
                 }
-                ticketMachine.setWorking();
+
             }
-        }, 5, 5, TimeUnit.SECONDS);
+        }, 0, 2, TimeUnit.SECONDS);
+
+        service.scheduleAtFixedRate(() -> {
+            if (Math.random() < 0.5) {
+                if(ticketBooth1.isWorking()){
+                    ticketBooth1.setNotWorking();
+                    System.out.println("Ticket Booth 1: Toilet Break!");
+                }else{
+                    ticketBooth1.setWorking();
+                    System.out.println("Ticket Booth 1: Back to Work.");
+                }
+
+            }
+        }, 3, 10, TimeUnit.SECONDS);
+
+        service.scheduleAtFixedRate(() -> {
+            if (Math.random() < 0.5) {
+                if(ticketBooth2.isWorking()){
+                    ticketBooth2.setNotWorking();
+                    System.out.println("Ticket Booth 2: Toilet Break!");
+                }else{
+                    ticketBooth2.setWorking();
+                    System.out.println("Ticket Booth 2: Back to Work.");
+                }
+
+            }
+        }, 3, 10, TimeUnit.SECONDS);
+
 
         for (int i = 1; i <= 80; i++) {
             final int passengerId = i;
@@ -69,7 +103,11 @@ public class Terminal {
 
             // We will pass the whole lists of buses and waiting areas to the Passenger.
             // Inside the Passenger class, the passenger will choose a specific bus and a waiting area to interact with.
-            Passenger p = new Passenger(passengerId, guard, ticketBooth1, ticketBooth2, ticketMachine, inspector, buses, waitingAreas, desiredWaitingAreaIndex, passengersProcessed);
+            Guard guard=westEntranceGuard;
+            if(Math.random()<0.5){
+                guard=eastEntranceGuard;
+            }
+            Passenger p = new Passenger(passengerId, guard, ticketBooth1, ticketBooth2, ticketMachine, waitingAreas, desiredWaitingAreaIndex+1, passengersProcessed, monitor);
             p.start();
             try {
                 Thread.sleep((int) ((Math.random() * 2 + 3)*1000));
@@ -78,12 +116,13 @@ public class Terminal {
             }
         }
 //
-//        // Shutdown the executor service after launching all passenger threads
-//        service.shutdown();
+
         // After shutting down the executor:
         synchronized (monitor) {
             while (passengersProcessed.get() < 80) {
                 monitor.wait();
+                // Shutdown the executor service after boarded all passengers
+                service.shutdown();
             }
         }
 

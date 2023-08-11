@@ -1,60 +1,74 @@
 package com.mycompany.apu_assignemnt;
 
-public class Bus {
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+public class Bus extends Thread{
 
     private int id;
-    private int queueLength = 0;
-    private int passengersBoardedAndDeparted = 0;
+
+
+
+    private AtomicInteger boardedPassengers = new AtomicInteger(0);
     private boolean atTerminal = true;
-    private final Object busLock = new Object();
 
-    public Bus(int id) {
+
+
+    private Lock busLock = new ReentrantLock();
+
+    private AtomicInteger passengersProcessed;
+
+    public Bus(int id, AtomicInteger passengersProcessed) {
         this.id = id;
+        this.passengersProcessed=passengersProcessed;
     }
 
-    //TODO Change Bus to Thread
-    public void boardBus(int passengerId) throws InterruptedException {
-        synchronized (busLock) {
-            while (!isAvailable() || !atTerminal) {
-                System.out.println("Thread-Passenger-" + passengerId + ": Bus " + id + " is not available. Waiting.");
-                busLock.wait();
-            }
-            System.out.println("Thread-Passenger-" + passengerId + ": Boarding Bus " + id + ".");
-            Thread.sleep((int) (Math.random() * 2 + 3) * 1000);
-            queueLength++;
-            passengersBoardedAndDeparted++;
-            if (queueLength >= 10) {
-                depart();
-            }
-        }
-    }
+    @Override
+    public void run(){
 
-    public void depart() {
-        synchronized (busLock) {
-            System.out.println("Thread-Bus-" + id + ": Departing with " + queueLength + " passengers.");
-            queueLength = 0; 
-            atTerminal = false;
+        while(true){
 
-            new Thread(() -> {
-                try {
-                    Thread.sleep((int) (Math.random() * 5 + 10) * 1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+
+            try {
+                
+                //Bus is driving
+                busLock.lock();
+                Thread.sleep((int) (Math.random() * 20 + 5) * 1000);
+
+                if(passengersProcessed.get()>=80) break;
+                boardedPassengers.set(0);
+
+                //Bus reaches station
+                System.out.println("Thread-Bus-" + id + ": Returned to the terminal.");
+                busLock.unlock();
+
+                //Bus departs when notify by Inspector
+                synchronized (this){
+                    wait();
                 }
-                synchronized (busLock) {
-                    atTerminal = true;
-                    System.out.println("Thread-Bus-" + id + ": Returned to the terminal.");
-                    busLock.notifyAll();
-                }
-            }).start();
+
+                System.out.println("Thread-Bus-" + id + ": Departed with " + boardedPassengers.get() + " passengers.");
+
+
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+
+
+
+
+
         }
+
+
     }
 
-    public boolean isAvailable() {
-        return queueLength < 10;
+    public int incrementBoardedPassengers() {
+        return boardedPassengers.incrementAndGet();
     }
 
-    public int getPassengersBoardedAndDeparted() {
-        return passengersBoardedAndDeparted;
+    public Lock getBusLock() {
+        return busLock;
     }
 }
