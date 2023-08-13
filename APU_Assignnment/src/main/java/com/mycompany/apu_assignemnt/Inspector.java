@@ -3,6 +3,7 @@ package com.mycompany.apu_assignemnt;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Lock;
 
 public class Inspector extends Thread{
 
@@ -21,13 +22,25 @@ public class Inspector extends Thread{
     public void run(){
         while(passengersProcessed.get()<80){
             for(int i=0; i<3; i++){
-                if(buses.get(i).getBusLock().tryLock()){
+                Bus bus= buses.get(i);
+                Lock lock=bus.getAtTerminalLock();
+
+                if(lock.tryLock()){
                     try {
-                        inspectTicket(waitingAreas.get(i),buses.get(i));
+                        inspectTicket(waitingAreas.get(i),bus);
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
+                    }finally {
+                        lock.unlock();
+                        synchronized (bus){
+                            bus.notifyAll();
+
+                        }
                     }
+
                 }
+
+
             }
         }
         for(int i=0; i<3; i++){
@@ -42,16 +55,13 @@ public class Inspector extends Thread{
 
         // Sleep to simulate the time taken for ticket inspection, with random duration between 500 to 2000 milliseconds
         System.out.println("Thread-Inspector: Starting to board passengers to bus "+waitingArea.getId());
+        Thread.sleep((int)(Math.random()*4*500));
 
         int boardedPassengers=0;
         Passenger passenger=waitingArea.leave();
+
         if(passenger==null){
             System.out.println("Thread-Inspector: No passengers waiting for bus "+waitingArea.getId());
-            bus.getBusLock().unlock();
-            synchronized(bus){
-                //Inform bus to leave
-                bus.notifyAll();
-            }
             return;
         }else{
             System.out.println("Thread-Inspector: Instructing passenger in waiting area to board bus "+waitingArea.getId()+".\tWaiting Area Space: "+(waitingArea.space()-1)+"/10");
@@ -71,16 +81,7 @@ public class Inspector extends Thread{
             passenger=waitingArea.leave();
 
 
-
         }
-
-        bus.getBusLock().unlock();
-
-        synchronized(bus){
-            //Inform bus to leave
-            bus.notifyAll();
-        }
-
         // Print a message indicating the ticket has been inspected
         System.out.println("Thread-Inspector: has done ticket inspection for bus "+waitingArea.getId());
     }

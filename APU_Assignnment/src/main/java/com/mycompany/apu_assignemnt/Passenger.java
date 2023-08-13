@@ -103,8 +103,8 @@ public class Passenger extends Thread {
     private void exitTerminal() {
 
 
-        passengersProcessed.getAndIncrement();
-        System.out.println("Thread-Passenger-" + id + ": Exited terminal " + desiredWaitingArea + ".\tProcessed Passengers: "+passengersProcessed.get()+"/80");
+
+        System.out.println("Thread-Passenger-" + id + ": Exited terminal \tProcessed Passengers: "+passengersProcessed.incrementAndGet()+"/80");
 
         if (passengersProcessed.get() == 80) {
             synchronized (monitor) {

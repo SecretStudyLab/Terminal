@@ -20,12 +20,12 @@ public class WaitingArea {
         this.waitingPassengers = new ArrayBlockingQueue<>(CAPACITY, true); ///FIFO
     }
 
-    public synchronized int enter(Passenger passenger) throws InterruptedException {  // Passenger tries to enter the waiting area.
+    public int enter(Passenger passenger) throws InterruptedException {  // Passenger tries to enter the waiting area.
          waitingPassengers.put(passenger);
          return waitingPassengers.remainingCapacity();
     }
 
-    public synchronized Passenger leave() throws InterruptedException {  // Passenger leaves the waiting area.
+    public Passenger leave() throws InterruptedException {  // Passenger leaves the waiting area.
         //Wait X seconds for the next passenger
         Passenger passenger=waitingPassengers.poll(3, TimeUnit.SECONDS);
         if(passenger!=null){
@@ -36,7 +36,7 @@ public class WaitingArea {
         return passenger;
     }
 
-    public synchronized int space(){
+    public int space(){
         return waitingPassengers.remainingCapacity();
     }
 

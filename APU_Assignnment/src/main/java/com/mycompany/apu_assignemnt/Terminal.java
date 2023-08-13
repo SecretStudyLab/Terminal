@@ -48,7 +48,7 @@ public class Terminal {
         // Schedule the ticket machine breakdown simulation
         Thread ticketMachineSwitch=new Thread(() -> {
             while (passengersProcessed.get() < 80) {
-                if (Math.random() < 0.2) { // 20% of the down time/to get repair
+                if (Math.random() < 0.1) { // 20% of the down time/to get repair
                     if (ticketMachine.isWorking()) {
                         ticketMachine.setNotWorking();
                         System.out.println("Ticket Machine: Breakdown!");
@@ -58,7 +58,7 @@ public class Terminal {
                     }
                 }
                 try {
-                    Thread.sleep(20000); // Delay for 2 seconds
+                    Thread.sleep(2000); // Delay for 2 seconds
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -68,7 +68,7 @@ public class Terminal {
 
         Thread ticketBooth1Switch=new Thread(() -> {
             while (passengersProcessed.get() < 80) {
-                if (Math.random() < 0.1) {
+                if (Math.random() < 0.01) {
                     if (ticketBooth1.isWorking()) {
                         ticketBooth1.setNotWorking();
                         System.out.println("Ticket Booth 1: Toilet Break!");
@@ -78,7 +78,7 @@ public class Terminal {
                     }
                 }
                 try {
-                    Thread.sleep(30000); // Delay for 10 seconds
+                    Thread.sleep(3000); // Delay for 10 seconds
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -88,7 +88,7 @@ public class Terminal {
 
         Thread ticketBooth2Switch=new Thread(() -> {
             while (passengersProcessed.get() < 80) {
-                if (Math.random() < 0.1) {
+                if (Math.random() < 0.01) {
                     if (ticketBooth2.isWorking()) {
                         ticketBooth2.setNotWorking();
                         System.out.println("Ticket Booth 2: Toilet Break!");
@@ -98,7 +98,7 @@ public class Terminal {
                     }
                 }
                 try {
-                    Thread.sleep(30000); // Delay for 10 seconds
+                    Thread.sleep(3000); // Delay for 10 seconds
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -119,6 +119,7 @@ public class Terminal {
 
             // Inside the Passenger class, the passenger will choose a specific bus and a waiting area to interact with.
             Passenger p = new Passenger(passengerId, guard, ticketBooth1, ticketBooth2, ticketMachine, waitingAreas, desiredWaitingAreaIndex+1, passengersProcessed, monitor);
+            passengers.add(p);
             p.start();
             try {
                 Thread.sleep((int) ((Math.random() * 2 + 1) * 1000));
@@ -139,13 +140,15 @@ public class Terminal {
 
                 for(Bus bus:buses){
                     bus.join();
-                    System.out.println("All buses have done operation!");
 
                 }
+                System.out.println("All buses have done operation!");
+
                 for(Passenger passenger:passengers){
                     passenger.join();
-                    System.out.println("All passengers processed!");
                 }
+                System.out.println("All passengers processed!");
+
             }
         }
 

@@ -18,7 +18,7 @@ public class TicketSeller {
     }
     public synchronized boolean operating() throws InterruptedException {
         if(isWorking){
-            Thread.sleep((int) (Math.random() * waitingAddTime + waitingMinTime) * 1000); // Random delay between 1-1 seconds
+            Thread.sleep((int) (Math.random() * waitingAddTime + waitingMinTime) * 500); // Random delay between 1-1 seconds
             return true;
 
         }
@@ -26,11 +26,11 @@ public class TicketSeller {
 
     }
 
-    public synchronized void setNotWorking() {
+    public void setNotWorking() {
         this.isWorking = false;
     }
 
-    public synchronized void setWorking() {
+    public void setWorking() {
         this.isWorking = true;
     }
 
@@ -42,15 +42,13 @@ public class TicketSeller {
         //Only wait for X seconds
         if(!isWorking){
             //Wait a while
-            Thread.sleep(5000);
             return false;
         }
-        if(myTurnLock.tryLock(10, TimeUnit.SECONDS)){
-            boolean isPurchased=operating();
-            myTurnLock.unlock();
-            return isPurchased;
-        }
-        return false;
+        myTurnLock.lock();
+        boolean isPurchased=operating();
+        myTurnLock.unlock();
+        return isPurchased;
+
 
     }
 }

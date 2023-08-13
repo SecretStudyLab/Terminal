@@ -11,11 +11,11 @@ public class Bus extends Thread{
 
 
     private AtomicInteger boardedPassengers = new AtomicInteger(0);
-    private boolean atTerminal = true;
 
 
 
-    private Lock busLock = new ReentrantLock(true);
+    //Means is at terminal
+    private Lock atTerminalLock = new ReentrantLock(true);
 
     private AtomicInteger passengersProcessed;
 
@@ -27,26 +27,26 @@ public class Bus extends Thread{
 
     @Override
     public void run(){
-        busLock.lock();
         while(true){
             try {
 
+            //Bus departs when notify by Inspector
                 if(passengersProcessed.get()>=80) break;
+
                 boardedPassengers.set(0);
 
                 //Bus reaches station
                 System.out.println("Thread-Bus-" + id + ": Returned to the terminal.");
-                busLock.unlock();
-
-                //Bus departs when notify by Inspector
                 synchronized (this){
                     wait();
-                    //Bus is driving
-                    busLock.lock();
-                    Thread.sleep((int) (Math.random() * 20 + 10) * 1000);
+                    atTerminalLock.lock();
                 }
 
+                //Bus is driving
                 System.out.println("Thread-Bus-" + id + ": Departed with " + boardedPassengers.get() + " passengers.");
+
+                Thread.sleep((int) (Math.random() * 20 + 10) * 1000);
+                atTerminalLock.unlock();
 
 
             } catch (InterruptedException e) {
@@ -66,7 +66,7 @@ public class Bus extends Thread{
         return boardedPassengers.incrementAndGet();
     }
 
-    public Lock getBusLock() {
-        return busLock;
+    public Lock getAtTerminalLock() {
+        return atTerminalLock;
     }
 }

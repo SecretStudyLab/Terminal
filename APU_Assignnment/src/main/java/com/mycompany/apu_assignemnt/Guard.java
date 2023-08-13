@@ -20,12 +20,12 @@ public class Guard {
 
     }
 
-    public synchronized int entry() throws InterruptedException {
+    public int entry() throws InterruptedException {
         foyerSpace.acquire();
         return foyerSpace.availablePermits()+ entranceThreshold.get();
     }
 
-    public synchronized int exit() {
+    public int exit() {
         if(foyerSpace.availablePermits()==0){
             synchronized (entranceThreshold){
                 if (entranceThreshold.incrementAndGet()==3){
