@@ -5,8 +5,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class Guard {
 
-    //TODO Change terminalSpace name to FoyerSpace
-    //TODO Move foyerSpace to Terminal
 
     private String name;
     private Semaphore foyerSpace;
@@ -22,12 +20,12 @@ public class Guard {
 
     }
 
-    public int entry() throws InterruptedException {
+    public synchronized int entry() throws InterruptedException {
         foyerSpace.acquire();
         return foyerSpace.availablePermits()+ entranceThreshold.get();
     }
 
-    public int exit() {
+    public synchronized int exit() {
         if(foyerSpace.availablePermits()==0){
             synchronized (entranceThreshold){
                 if (entranceThreshold.incrementAndGet()==3){

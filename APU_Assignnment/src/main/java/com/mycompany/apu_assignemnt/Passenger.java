@@ -1,6 +1,7 @@
 package com.mycompany.apu_assignemnt;
 
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -26,7 +27,6 @@ public class Passenger extends Thread {
         this.ticketBooth2 = ticketBooth2;
         this.ticketMachine = ticketMachine;
 
-        //TODO Pass Inspector to Bus instead
         this.waitingArea = waitingAreas.get(desiredWaitingArea-1);
         this.desiredWaitingArea = desiredWaitingArea;
         this.passengersProcessed = passengersProcessed;
@@ -92,8 +92,11 @@ public class Passenger extends Thread {
 //        inspector.inspectTicket(id);
 //    }
 
-    private void boardBus() {
+    private void boardBus() throws InterruptedException {
         System.out.println("Thread-Passenger-" + id + ": Left Waiting Area " + desiredWaitingArea+".\tWaiting Area Space: "+waitingArea.space()+"/10");
+        Random random=new Random();
+        int sleepTime = 500 + random.nextInt(1500); // Random time between 500 to 2000 milliseconds
+        Thread.sleep(sleepTime);
         System.out.println("Thread-Passenger-" + id + ": Boarded Bus " + desiredWaitingArea + ".");
     }
 
@@ -101,7 +104,7 @@ public class Passenger extends Thread {
 
 
         passengersProcessed.getAndIncrement();
-        System.out.println("Total Processed passenger " + passengersProcessed.get());
+        System.out.println("Thread-Passenger-" + id + ": Exited terminal " + desiredWaitingArea + ".\tProcessed Passengers: "+passengersProcessed.get()+"/80");
 
         if (passengersProcessed.get() == 80) {
             synchronized (monitor) {

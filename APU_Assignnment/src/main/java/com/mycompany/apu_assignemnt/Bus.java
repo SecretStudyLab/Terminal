@@ -15,26 +15,21 @@ public class Bus extends Thread{
 
 
 
-    private Lock busLock = new ReentrantLock();
+    private Lock busLock = new ReentrantLock(true);
 
     private AtomicInteger passengersProcessed;
 
     public Bus(int id, AtomicInteger passengersProcessed) {
         this.id = id;
         this.passengersProcessed=passengersProcessed;
+
     }
 
     @Override
     public void run(){
-
+        busLock.lock();
         while(true){
-
-
             try {
-                
-                //Bus is driving
-                busLock.lock();
-                Thread.sleep((int) (Math.random() * 20 + 5) * 1000);
 
                 if(passengersProcessed.get()>=80) break;
                 boardedPassengers.set(0);
@@ -46,6 +41,9 @@ public class Bus extends Thread{
                 //Bus departs when notify by Inspector
                 synchronized (this){
                     wait();
+                    //Bus is driving
+                    busLock.lock();
+                    Thread.sleep((int) (Math.random() * 20 + 10) * 1000);
                 }
 
                 System.out.println("Thread-Bus-" + id + ": Departed with " + boardedPassengers.get() + " passengers.");

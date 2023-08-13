@@ -54,15 +54,14 @@ public class Inspector extends Thread{
             }
             return;
         }else{
-            System.out.println("Thread-Inspector: Instructing passenger in waiting area to board bus "+waitingArea.getId()+".\tWaiting Area Space: "+waitingArea.space()+"/10");
+            System.out.println("Thread-Inspector: Instructing passenger in waiting area to board bus "+waitingArea.getId()+".\tWaiting Area Space: "+(waitingArea.space()-1)+"/10");
 
         }
 
         while(passenger!=null){
 
+            passenger.join();
 
-            int sleepTime = 500 + random.nextInt(1500); // Random time between 500 to 2000 milliseconds
-            Thread.sleep(sleepTime);
             boardedPassengers=bus.incrementBoardedPassengers();
 
             System.out.println("Thread-Inspector: Boarded "+boardedPassengers+" passenger to bus "+waitingArea.getId()+".");
@@ -83,6 +82,6 @@ public class Inspector extends Thread{
         }
 
         // Print a message indicating the ticket has been inspected
-        System.out.println("Thread-Inspector: Ticket has inspected ticket for bus "+waitingArea.getId());
+        System.out.println("Thread-Inspector: has done ticket inspection for bus "+waitingArea.getId());
     }
 }

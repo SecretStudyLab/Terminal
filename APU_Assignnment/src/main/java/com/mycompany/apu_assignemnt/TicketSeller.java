@@ -4,7 +4,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-//TODO Change to Thread
+
 public class TicketSeller {
 
     private boolean isWorking = true;
@@ -40,8 +40,12 @@ public class TicketSeller {
 
     public boolean buyTicket() throws InterruptedException {
         //Only wait for X seconds
-        if(!isWorking) return false;
-        if(myTurnLock.tryLock(5, TimeUnit.SECONDS)){
+        if(!isWorking){
+            //Wait a while
+            Thread.sleep(5000);
+            return false;
+        }
+        if(myTurnLock.tryLock(10, TimeUnit.SECONDS)){
             boolean isPurchased=operating();
             myTurnLock.unlock();
             return isPurchased;
